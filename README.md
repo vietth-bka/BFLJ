@@ -83,26 +83,16 @@ cd tools
 python3 inference_one_img.py -md rcnn_fpn_baseline -r 30 -d 0 -c 'bfj' -p 'path-to-your-image'
 ```
 
-## Models
-
-Following [CrowdDet](https://github.com/Purkialo/CrowdDet),
-we use pre-trained model from [MegEngine Model Hub](https://megengine.org.cn/model-hub) and convert this model to pytorch. You can get this model from [here](https://drive.google.com/file/d/1lfYQHC63oM2Dynbfj6uD7XnpDIaA5kNr/view?usp=sharing).
-These models can also be downloaded from [Baidu Netdisk](https://pan.baidu.com/s/1U3I-qNIrXuYQzUEDDdISTw)(code:yx46).
-
-All models are based on ResNet-50 FPN.
-
 
 # Results
 All models are based on ResNet-50 FPN.
-| | AP@0.5(body/face) | MR(body/face) | mMR(w/wo LSA) | AL | Model
+| | AP@0.5(body/face)&uarr; | MR(body/face)&darr; | mMR(w/wo LSA)&darr; | AL | Model
 | --- | --- | --- | --- | --- | --- |
 | FRCN-FPN-POS (Baseline)  | 87.9/71.1 | 43.7/52.6 | 66.4/_ |      |[GoogleDrive](https://drive.google.com/file/d/1GFnIXqc9aG0eXSQFI4Pe4XfO-8hAZmKV/view?usp=sharing)|
-| FRCN-FPN-BFJ             | 88.8/70.0 | 43.4/53.2 | 52.5/_ |      |[GoogleDrive](https://drive.google.com/file/d/1E8MQf3pfOyjbVvxZeBLdYBFUiJA6bdgr/view?usp=sharing)|
-| FRCN-FPN-BFLJ-cse (mine)  | 88.6/71.3 | 42.9/52.5 | 49.5/48.36 | 70.9 | ____ |
-| FRCN-FPN-BFLJ-mf (mine)   | 88.6/71.3 | 43.3/52.2 | 49.7/48.49 | 70.9 | ____ |
- | 
-
-
+| FRCN-FPN-BFJ             | **88.8**/70.0 | 43.4/53.2 | 52.5/_ |      |[GoogleDrive](https://drive.google.com/file/d/1E8MQf3pfOyjbVvxZeBLdYBFUiJA6bdgr/view?usp=sharing)|
+| FRCN-FPN-BFLJ-mf (mine)   | 88.6/71.3 | 43.3/52.2 | 49.7/48.49 | 70.9 | [GoogleDrive](https://drive.google.com/file/d/1BiPQCjImzTmBx2zHTegIt1bEFuLLwgbd/view?usp=drive_link) |
+| FRCN-FPN-BFLJ-cse (mine)  | 88.6/**71.3** | **42.9/52.5** | **49.5/48.36** | 70.9 | [GoogleDrive](https://drive.google.com/drive/folders/1pq66UE7EZDh3_TtF9qXPueJAfFhLjacd?usp=sharing) |
+*Note: best figures are in bold*
 
 # Contact
 
