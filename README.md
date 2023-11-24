@@ -50,16 +50,16 @@ To assess the landmarks quality, I introduce a new metric Average Landmarks scor
 The original idea of `BFJ` was embedding matching using pulling and pushing loss. For pulling and pushing body-face boxes, they expect to shorten the distances between proposed 
 positive boxes and their corresponding embeddings while pushing negative boxes (different objects) away using Euclidean distance. My improvement is to convert Euclidean distance into Cosine distance by turning embedding matching loss into hyperspherical loss, which means I could leverage a number of research in the field of deep metric learning. 
 
-![merge](./demo/Picture3-imageonline.co-merged.png)
+![merge](./demo/Picture2.png)
 
--	For each ground-truth, we derive two corresponding sets of body and face proposals (3 shade circles and squares with the same color). As mentioned above, here we would pull closer all circles (body) and squares (face) of the same color as they belongs to the same person, while pushing everything in different colors (dashed lines). 
--	Next, we aggregate the positive face embedding groups into fixed prototypes (cube) - representations of classes while considering each bodies as querying dataset, which makes this problem resemble classification. For examples, the red shade circles belongs to the class of red cube, but not to the class of blue, yellow and green cubes. The reserve direction shares the same pattern in which the face embeddings are considered as querying dataset, meanwhiles the body embeddings are class prototypes. 
+-	For each ground-truth, as in `BFJ`, we have two corresponding sets of body and face proposals (3 shade circles and squares with the same color). The primitive idea is merely pulling closer all circles (body) and squares (face) of the same color as they belongs to the same person, while pushing embeddings in different colors (dashed lines). 
+-	After aggregating the positive face embedding groups into fixed prototypes (cube) - representations of classes and considering each bodies as querying dataset, this problem actually resembles classification. The reserve direction shares the same pattern in which the face embeddings are considered as querying dataset, meanwhiles the body embeddings are class prototypes. 
 -	In the hyperspherical view, this problem can be dealt with by using Margin losses like mere Cross Entropy, SphereFaces or ArcFace, ... 
-
+- For the body-face association, I also leverage Cosine distance while computing `match_merge_matrix` to comply with the embedding matching loss.
 
 # Body-face association:
-I improve the body-face association through `match_merge_matrix` at [test_bflj.py](./test_bflj.py) in which each body box is expected to find its suitable face box. 
-Due to the inefficient maximization assignment, some body boxes could be assigned to the same face box, which is obviously absurd and significantly harms the 
+I also update the body-face association through computing `match_merge_matrix` at [test_bflj.py](./test_bflj.py) in which each body box is expected to find its suitable face box. 
+Due to the inefficient maximization assignment, some body boxes could be assigned to the same face box, which is obviously absurd and significantly may harm the 
 metric $mMR^{-2}$. Instead, I opt for using Linear Sum Assignment (**LSA**) in order to match each body box to a unique face box. 
 Thus, the $mMR^{-2}$ on CrowdHuman witnesses the further reduction of roughly 1%.  
 
