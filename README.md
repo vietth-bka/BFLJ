@@ -5,7 +5,7 @@ This project (base on the re-implementation [BFJ](https://github.com/AibeeDetect
 
 # Introduction
 
-My motivation is to detect the group of body and face with landmarks of pedestrians in one shot detector, which is practical in many applications (such as tracking, MOT).
+My motivation is to detect Hwthe group of body and face with landmarks of pedestrians in one shot detector, which is practical in many applications (such as tracking, MOT).
 Inspired by BFJ, but this approach brings some significant ideas: 
 1) From enhanced semantic level, using five facial landmarks as semantic bridges. 
 2) From appearance level, learning representations via deep metric learning. 
@@ -15,10 +15,8 @@ Apart from head hook of `BFJ` which is just a point embodying very vague semanti
 Because they are visual charateristics in faces, constructed by motifs and details around eyes, nose and mouth 
 and could be useful for facial analist, facial recognition, ...
 
-<!-- ![introfig](./demo/intro.png)
-![introfig1](./demo/intro1.png) -->
 ![introfig](./demo/demo.png)
-<!-- ![introfig1](./demo/intro.png) -->
+
 
 # Updates
 - [x] Supplement the CrowdHuman annotations with landmarks.
@@ -31,7 +29,6 @@ and could be useful for facial analist, facial recognition, ...
 
 
 # Data Preparing
-
 I utilize the annotate body-face boxes of [CrowdHuman](https://arxiv.org/abs/1805.00123) from [BFJ](https://github.com/AibeeDetect/BFJDet.git) 
 and generate landmarks for corresponding faces while constructing a new metrics assessing landmarks for body-face-landmark joint detection.
 Please follow instructions below to get these data.
@@ -39,11 +36,36 @@ Please follow instructions below to get these data.
 1. Download images from http://www.crowdhuman.org/.
 2. Download body-face annotations from [GoogleDrive](https://drive.google.com/drive/folders/1Sk2IAmm_wTVh289RKs5FiU17siWrJJCu?usp=sharing), which contains the original body/head boxes and my newly annotated face boxes.
 3. Generate RetinaFace based landmarks for faces in CrowdHuman using [RetinaFace pytorch](https://github.com/biubug6/Pytorch_Retinaface) and add them to annotations of CrowdHuman using my code [here](/home/tungpt/Workspace/vietth/Body_head_detection/A5000_BFJDet/lib/data/test_loader_gt.py). 
-In particular, landmarks would accompany only one corresponding body-face pair, so that we convert the original CrowdHuman dataset into body-face-landmark data points.
+In particular, landmarks should accompany only one corresponding body-face pair, so that I convert the original CrowdHuman dataset into body-face-landmark data points. You could find my processed data [here](https://drive.google.com/drive/folders/1gwjyLlHyLVOwJ-YCvnbDkDBp7tzHx_b_?usp=sharing).
+
+
+# Metrics: 
+In accordance with `BFJ`, I keep the metrics of detection AP, miss rate MR and that of pairs matching $mMR^{-2}$ in order to make it convenient for my compararisons.
+To assess the landmarks quality, I introduce a new metric Average Landmarks score (**AL**) which is designed for measuring the area under curve of **exponential landmark score** w.r.t recall. The **exponential landmark score** is computed as the exponential value of `L1-smooth` between detected landmarks `dt` and their groundtruth `gt`: $e^{\frac{-|dt-gt|}{10}}$. The higher exponential landmark score, the lower landmark loss.
+  * On CrowdHuman, the evaluation code can be found at [database.py](./lib/evaluate_lmk/APMRToolkits/database.py), in which the related functions will be called when you run the test_bflj.py script.
+  * On other datasets, I hope I could have chance to update metrics in the future.
+
+
+# Embedding similarity:
+The original idea of `BFJ` was embedding matching using pulling and pushing loss. For pulling and pushing body-face boxes, they expect to shorten the distances between proposed 
+positive boxes and their corresponding embeddings while pushing negative boxes (different objects) away using Euclidean distance. My improvement is to convert Euclidean distance into Cosine distance by turning embedding matching loss into hyperspherical loss, which means I could leverage a number of research in the field of deep metric learning. 
+
+![merge](./demo/Picture3-imageonline.co-merged.png)
+
+-	For each ground-truth, we derive two corresponding sets of body and face proposals (3 shade circles and squares with the same color). As mentioned above, here we would pull closer all circles (body) and squares (face) of the same color as they belongs to the same person, while pushing everything in different colors (dashed lines). 
+-	Next, we aggregate the positive face embedding groups into fixed prototypes (cube) - representations of classes while considering each bodies as querying dataset, which makes this problem resemble classification. For examples, the red shade circles belongs to the class of red cube, but not to the class of blue, yellow and green cubes. The reserve direction shares the same pattern in which the face embeddings are considered as querying dataset, meanwhiles the body embeddings are class prototypes. 
+-	In the hyperspherical view, this problem can be dealt with by using Margin losses like mere Cross Entropy, SphereFaces or ArcFace, ... 
+
+
+# Body-face association:
+I improve the body-face association through `match_merge_matrix` at [test_bflj.py](./test_bflj.py) in which each body box is expected to find its suitable face box. 
+Due to the inefficient maximization assignment, some body boxes could be assigned to the same face box, which is obviously absurd and significantly harms the 
+metric $mMR^{-2}$. Instead, I opt for using Linear Sum Assignment (**LSA**) in order to match each body box to a unique face box. 
+Thus, the $mMR^{-2}$ on CrowdHuman witnesses the further reduction of roughly 1%.  
+
 
 # Quick & Easy Start
-
-### 1. Environment settings
+## 1. Environment settings
 
 * python 3.9.16
 * pytorch 1.12.0
@@ -51,15 +73,12 @@ In particular, landmarks would accompany only one corresponding body-face pair, 
 * cuda 12.1
 * scipy 1.9.1
 
-### 2. Train/Test/Inference:
+## 2. Train/Test/Inference:
 
-* Training: This version combines several loss functions: 
-  + **loss_rcnn_loc**: L1 loss of boxes' locations.
-  + **loss_rcnn_cls**: objectness loss.
+* Training: This version combines several new loss functions:   
   + **loss_rcnn_lmk**: L1 loss of faces' landmarks.
   + **loss_lmk_cls**: penalize the present/absent of landmarks.
-  + **loss_rcnn_emb**: push/pull embedding loss.
-  + **angular_loss_pos**: angular loss with head hooks.
+  + **loss_rcnn_emb**: push/pull embedding loss using deep metric learning.  
   + **angular_loss_lmk**: angular loss with landmark hooks.
 ```shell
 cd tools
@@ -73,7 +92,7 @@ cd tools
 python3 test_bflj.py -md rcnn_fpn_baseline -r 30 -d 0 -c 'bfj'
 ```
 
-* Inference: Inference any images from Crownhuman only with an index of `n` or random if leave it blank. 
+* Inference: Inference any images from CrowdHuman only with an index of `n` or random if leave it blank. 
 ```shell
 cd tools
 python3 inference_bflj.py -md rcnn_fpn_baseline -r 30 -d 0 -c 'bfj' -n 10
@@ -90,9 +109,9 @@ All models are based on ResNet-50 FPN.
 | --- | --- | --- | --- | --- | --- |
 | FRCN-FPN-POS (Baseline)  | 87.9/71.1 | 43.7/52.6 | 66.4/_ |      |[GoogleDrive](https://drive.google.com/file/d/1GFnIXqc9aG0eXSQFI4Pe4XfO-8hAZmKV/view?usp=sharing)|
 | FRCN-FPN-BFJ             | **88.8**/70.0 | 43.4/53.2 | 52.5/_ |      |[GoogleDrive](https://drive.google.com/file/d/1E8MQf3pfOyjbVvxZeBLdYBFUiJA6bdgr/view?usp=sharing)|
-| FRCN-FPN-BFLJ-mf (mine)   | 88.6/71.3 | 43.3/52.2 | 49.7/48.49 | 70.9 | [GoogleDrive](https://drive.google.com/file/d/1BiPQCjImzTmBx2zHTegIt1bEFuLLwgbd/view?usp=drive_link) |
-| FRCN-FPN-BFLJ-cse (mine)  | 88.6/**71.3** | **42.9/52.5** | **49.5/48.36** | 70.9 | [GoogleDrive](https://drive.google.com/drive/folders/1pq66UE7EZDh3_TtF9qXPueJAfFhLjacd?usp=sharing) |
-*Note: best figures are in bold*
+| FRCN-FPN-BFLJ-mf (mine)   | 88.6/71.3 | 43.3/52.2 | 49.7/48.49 | 70.9 | [GoogleDrive](https://drive.google.com/file/d/1BiPQCjImzTmBx2zHTegIt1bEFuLLwgbd/view?usp=sharing) |
+| FRCN-FPN-BFLJ-cse (mine)  | 88.6/**71.3** | **42.9/52.5** | **49.5/48.36** | 70.9 | [GoogleDrive](https://drive.google.com/file/d/1j4m4rFoiO3itGzzDGucHdPXaQGuiasjv/view?usp=sharing) |
+*Note: best figures are in bold.*
 
 # Contact
 
