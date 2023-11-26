@@ -1,11 +1,11 @@
 Semantic Body-Face-Landmark Joint Detection
 ===
 
-This project (base on the re-implementation [BFJ](https://github.com/AibeeDetect/BFJDet.git) of the paper "[*Body-Face Joint Detection via Embedding and Head Hook*](https://openaccess.thecvf.com/content/ICCV2021/papers/Wan_Body-Face_Joint_Detection_via_Embedding_and_Head_Hook_ICCV_2021_paper.pdf)" published in ICCV2021). We use the facial landmarks as bridges instead of center heads in order to enrich the semantic connection between bodies and faces for surveilance in the wild. 
+In this project (base on the re-implementation [BFJ](https://github.com/AibeeDetect/BFJDet.git) of the paper "[*Body-Face Joint Detection via Embedding and Head Hook*](https://openaccess.thecvf.com/content/ICCV2021/papers/Wan_Body-Face_Joint_Detection_via_Embedding_and_Head_Hook_ICCV_2021_paper.pdf)" published in ICCV2021), I use the facial landmarks as bridges instead of center heads in order to enrich the semantic connection between bodies and faces for surveilance in the wild. 
 
 # Introduction
 
-My motivation is to detect Hwthe group of body and face with landmarks of pedestrians in one shot detector, which is practical in many applications (such as tracking, MOT).
+My motivation is to detect the group of body and face with landmarks of pedestrians in one shot detector, which is practical in many applications (such as tracking, MOT).
 Inspired by BFJ, but this approach brings some significant ideas: 
 1) From enhanced semantic level, using five facial landmarks as semantic bridges. 
 2) From appearance level, learning representations via deep metric learning. 
@@ -50,7 +50,7 @@ To assess the landmarks quality, I introduce a new metric Average Landmarks scor
 The original idea of `BFJ` was embedding matching using pulling and pushing loss. For pulling and pushing body-face boxes, they expect to shorten the distances between proposed 
 positive boxes and their corresponding embeddings while pushing negative boxes (different objects) away using Euclidean distance. My improvement is to convert Euclidean distance into Cosine distance by turning embedding matching loss into hyperspherical loss, which means I could leverage a number of research in the field of deep metric learning. 
 
-![merge](./demo/Picture2.png)
+![merge](./demo/Picture3-imageonline.co-merged.png)
 
 -	For each ground-truth, as in `BFJ`, we have two corresponding sets of body and face proposals (3 shade circles and squares with the same color). The primitive idea is merely pulling closer all circles (body) and squares (face) of the same color as they belongs to the same person, while pushing embeddings in different colors (dashed lines). 
 -	After aggregating the positive face embedding groups into fixed prototypes (cube) - representations of classes and considering each bodies as querying dataset, this problem actually resembles classification. The reserve direction shares the same pattern in which the face embeddings are considered as querying dataset, meanwhiles the body embeddings are class prototypes. 
@@ -75,11 +75,14 @@ Thus, the $mMR^{-2}$ on CrowdHuman witnesses the further reduction of roughly 1%
 
 ## 2. Train/Test/Inference:
 
-* Training: This version combines several new loss functions:   
-  + **loss_rcnn_lmk**: L1 loss of faces' landmarks.
-  + **loss_lmk_cls**: penalize the present/absent of landmarks.
-  + **loss_rcnn_emb**: push/pull embedding loss using deep metric learning.  
-  + **angular_loss_lmk**: angular loss with landmark hooks.
+* Training: This version combines several new loss functions:
+<pre>
+ loss_rcnn_lmk: L1 loss of faces' landmarks.
+ loss_lmk_cls: penalize the present/absent of landmarks.
+ loss_rcnn_emb: push/pull embedding loss using deep metric learning.  
+ angular_loss_lmk: angular loss with landmark hooks.
+</pre>
+
 ```shell
 cd tools
 python3 train.py -md rcnn_fpn_baseline -c 'bfj'
@@ -111,6 +114,7 @@ All models are based on ResNet-50 FPN.
 | FRCN-FPN-BFJ             | **88.8**/70.0 | 43.4/53.2 | 52.5/_ |      |[GoogleDrive](https://drive.google.com/file/d/1E8MQf3pfOyjbVvxZeBLdYBFUiJA6bdgr/view?usp=sharing)|
 | FRCN-FPN-BFLJ-mf (mine)   | 88.6/71.3 | 43.3/52.2 | 49.7/48.49 | 70.9 | [GoogleDrive](https://drive.google.com/file/d/1BiPQCjImzTmBx2zHTegIt1bEFuLLwgbd/view?usp=sharing) |
 | FRCN-FPN-BFLJ-cse (mine)  | 88.6/**71.3** | **42.9/52.5** | **49.5/48.36** | 70.9 | [GoogleDrive](https://drive.google.com/file/d/1j4m4rFoiO3itGzzDGucHdPXaQGuiasjv/view?usp=sharing) |
+
 *Note: best figures are in bold.*
 
 # Contact
