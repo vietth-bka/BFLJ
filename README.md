@@ -50,7 +50,7 @@ To assess the landmarks quality, I introduce a new metric Average Landmarks scor
 The original idea of `BFJ` was embedding matching using pulling and pushing loss. For pulling and pushing body-face boxes, they expect to shorten the distances between proposed 
 positive boxes and their corresponding embeddings while pushing negative boxes (different objects) away using Euclidean distance. My improvement is to convert Euclidean distance into Cosine distance by turning embedding matching loss into hyperspherical loss, which means I could leverage a number of research in the field of deep metric learning. 
 
-![merge](./demo/Picture3-imageonline.co-merged.png)
+![merge](./demo/Picture3_merged.png)
 
 -	For each ground-truth, as in `BFJ`, we have two corresponding sets of body and face proposals (3 shade circles and squares with the same color). The primitive idea is merely pulling closer all circles (body) and squares (face) of the same color as they belongs to the same person, while pushing embeddings in different colors (dashed lines). 
 -	After aggregating the positive face embedding groups into fixed prototypes (cube) - representations of classes and considering each bodies as querying dataset, this problem actually resembles classification. The reserve direction shares the same pattern in which the face embeddings are considered as querying dataset, meanwhiles the body embeddings are class prototypes. 
