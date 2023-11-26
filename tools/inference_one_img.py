@@ -316,7 +316,7 @@ def run_test():
     parser.add_argument('--resume_weights', '-r', default=None, required=True, type=str)
     parser.add_argument('--devices', '-d', default='0', type=str)
     parser.add_argument('--cut_off', '-co', default=0.96, type=float)
-    parser.add_argument('--loss','-l', default='cse', type=str)
+    parser.add_argument('--loss', '-l', default='cse', type=str)
     parser.add_argument('--img_path', '-p', default='../../data/CrowdHuman/CrowdHuman_val/Images/273271,2b3eb0002dbca786.jpg', type=str)
     os.environ['NCCL_IB_DISABLE'] = '1'
     args = parser.parse_args()

@@ -482,7 +482,8 @@ class Image(object):
         if len(lmk) > 10: lmk = lmk[:-1]
         assert len(lmk)==10, len(lmk)
         lmk = np.array(lmk)
-        lmk[:10:2] /= self._width        
+        # print('lmk:', lmk)
+        lmk[:10:2] /= self._width
         lmk[1:11:2] /= self._height
         # lmk = np.clip(lmk, a_min=0.0, a_max=1.0)
         return list(lmk)
@@ -491,6 +492,6 @@ def lmk_cost(dtbox, gtbox):
     dt = dtbox[-10:]
     gt = gtbox[-10:]
     assert dt.shape[-1]==gt.shape[-1]==10, 'Wrong shape of lmks'
-    # rmse = np.sqrt(np.power(gt-dt, 2).sum()/10)
-    cost = np.abs(gt-dt).sum()/10   #l1-smooth
-    return np.exp(-cost) 
+    # cost = np.sqrt(np.power(gt-dt, 2).sum()/dt.shape[-1]) #euclid distance
+    cost = np.abs(gt-dt).sum()/dt.shape[-1]   #l1-smooth
+    return np.exp(-cost)    

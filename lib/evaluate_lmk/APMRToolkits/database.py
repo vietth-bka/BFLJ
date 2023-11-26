@@ -217,7 +217,7 @@ class Database(object):
         thr = []
         fppi = []
         lmk_ls = []
-        cnt, cnt0 = 0,0
+        cnt_None, cnt_0 = 0,0
         for i, item in tqdm(enumerate(self.scorelist)):
             assert len(item) == 4, f'wrong length of item {len(item)}'
             if len(item) == 0:
@@ -232,9 +232,11 @@ class Database(object):
             precision = tp / (tp + fp)
             if item[3] != None:
                 lmk_ls.append(item[3])
-                lmk_mean = sum(lmk_ls)/len(lmk_ls)    #np.exp(-sum(lmk_ls)/len(lmk_ls))                
+                lmk_mean = sum(lmk_ls)/len(lmk_ls)    #np.exp(-sum(lmk_ls)/len(lmk_ls))
+                if item[3] == 0: cnt_0 += 1
             elif len(lmk_ls) > 0:
-                lmk_mean = rpZ[-1]                
+                lmk_mean = rpZ[-1]
+                cnt_None += 1                 
             else:                
                 lmk_mean = -1
             
@@ -246,18 +248,17 @@ class Database(object):
             thr.append(item[0][-1])
             fppi.append(fp/total_images)
         
-        if rpZ[0] == -1: rpZ[0] = rpZ[1]
-        
+        print('cnt zero: {}, cnt None: {}'.format(cnt_0, cnt_None))        
+        if rpZ[0] == -1: rpZ[0] = rpZ[1]        
         
         # APs = [i[0]*i[1] for i in zip(rpX, rpY)]
         # print('max AP:', max(APs), 'th:', thr[APs.index(max(APs))])
         AP = _calculate_map(rpX, rpY)
         # AL = _calculate_mapl(rpX, rpY, rpZ)
-        AL = _calculate_map(rpX, rpZ)
-        
+        AL = _calculate_map(rpX, rpZ)        
 
         plt.plot(rpX, rpZ, linewidth=1.0, label=f'AL={AL:.4f}')
-        plt.plot(rpX, rpY, linewidth=2.0, label=f'AP={AP:.4f}')
+        plt.plot(rpX, rpY, linewidth=1.0, label=f'AP={AP:.4f}')
         plt.legend()
         plt.savefig("last_results.png")
         # plt.savefig("rpZ.png")

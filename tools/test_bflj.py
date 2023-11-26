@@ -38,41 +38,41 @@ def eval_all(args, config, network):
     devices = misc_utils.device_parser(str_devices)
     # load data
     crowdhuman = CrowdHuman(config, if_train=False)
-    #crowdhuman.records = crowdhuman.records[:10]
+    
     # multiprocessing
-    num_devs = len(devices)
-    len_dataset = len(crowdhuman)
-    num_image = math.ceil(len_dataset / num_devs)
-    result_queue = Queue(500)
-    result_queue_match = Queue(500)
-    procs = []
-    all_results = []
-    all_results_match = []
-    for i in range(num_devs):
-        start = i * num_image
-        end = min(start + num_image, len_dataset)
-        if config.network == 'pos':
-            proc = Process(target=inference_pos, args=(
-                    config, network, model_file, devices[i], crowdhuman, start, end, result_queue, result_queue_match))
-        else:
-            proc = Process(target=inference_bfj, args=(
-                    config, args, network, model_file, devices[i], crowdhuman, start, end, result_queue, result_queue_match))
-        proc.start()
-        procs.append(proc)
-    pbar = tqdm(total=len_dataset, ncols=50)
-    for i in range(len_dataset):
-        t = result_queue.get()
-        all_results.append(t)
-        t_match = result_queue_match.get()
-        all_results_match.extend(t_match)
-        pbar.update(1)
-    pbar.close()
-    for p in procs:
-        p.join()
+    # num_devs = len(devices)
+    # len_dataset = len(crowdhuman)
+    # num_image = math.ceil(len_dataset / num_devs)
+    # result_queue = Queue(500)
+    # result_queue_match = Queue(500)
+    # procs = []
+    # all_results = []
+    # all_results_match = []
+    # for i in range(num_devs):
+    #     start = i * num_image
+    #     end = min(start + num_image, len_dataset)
+    #     if config.network == 'pos':
+    #         proc = Process(target=inference_pos, args=(
+    #                 config, network, model_file, devices[i], crowdhuman, start, end, result_queue, result_queue_match))
+    #     else:
+    #         proc = Process(target=inference_bfj, args=(
+    #                 config, args, network, model_file, devices[i], crowdhuman, start, end, result_queue, result_queue_match))
+    #     proc.start()
+    #     procs.append(proc)
+    # pbar = tqdm(total=len_dataset, ncols=50)
+    # for i in range(len_dataset):
+    #     t = result_queue.get()
+    #     all_results.append(t)
+    #     t_match = result_queue_match.get()
+    #     all_results_match.extend(t_match)
+    #     pbar.update(1)
+    # pbar.close()
+    # for p in procs:
+    #     p.join()
     fpath = os.path.join(evalDir, 'dump-{}{}.json'.format(args.resume_weights, args.loss))
-    misc_utils.save_json_lines(all_results, fpath)
+    # misc_utils.save_json_lines(all_results, fpath)
     fpath_match = os.path.join(evalDir, 'bf{}{}_match_bbox.json'.format(args.resume_weights, args.loss))
-    misc_utils.save_json(all_results_match, fpath_match)
+    # misc_utils.save_json(all_results_match, fpath_match)
     
     # evaluation
     # res_line, JI = compute_JI.evaluation_all(fpath, 'box')
