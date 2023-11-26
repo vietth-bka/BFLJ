@@ -21,8 +21,7 @@ and could be useful for facial analist, facial recognition, ...
 # Updates
 - [x] Supplement the CrowdHuman annotations with landmarks.
 - [x] Make landmarks prediction available and add some landmark losses (location, objectness and angular losses) in the training phase.
-- [x] Synchronize the use of cosine distance for embedding matching in both training and testing which diverts this problem toward deep metric learning.
-- [x] Convert maximum assignment at body-face matching to linear sum assignment at body-face matching.
+- [x] Convert maximum assignment at body-face matching into linear sum assignment at body-face matching.
 - [x] Faster R-CNN + BFLJ on CrowdHuman with deep metric learning.
 - [ ] RetinaNet + BFLJ on CrowdHuman.
 - [ ] Yolov7 + BFLJ on CrownHuman.
