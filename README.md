@@ -107,7 +107,7 @@ python3 inference_one_img.py -md rcnn_fpn_baseline -r 30 -d 0 -c 'bfj' -p 'path-
 
 # Results
 All models are based on ResNet-50 FPN.
-| | AP@0.5(body/face)&uarr; | MR(body/face)&darr; | mMR(w/wo LSA)&darr; | AL | Model
+| | AP@0.5(body/face)&uarr; | MR(body/face)&darr; | mMR(wo/w LSA)&darr; | AL | Model
 | --- | --- | --- | --- | --- | --- |
 | FRCN-FPN-POS (Baseline)  | 87.9/71.1 | 43.7/52.6 | 66.4/_ |      |[GoogleDrive](https://drive.google.com/file/d/1GFnIXqc9aG0eXSQFI4Pe4XfO-8hAZmKV/view?usp=sharing)|
 | FRCN-FPN-BFJ             | **88.8**/70.0 | 43.4/53.2 | 52.5/_ |      |[GoogleDrive](https://drive.google.com/file/d/1E8MQf3pfOyjbVvxZeBLdYBFUiJA6bdgr/view?usp=sharing)|
