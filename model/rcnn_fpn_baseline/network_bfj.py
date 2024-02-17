@@ -359,7 +359,7 @@ class RCNN(nn.Module):
         assert body_embedding_post_new.shape[0] == face_embedding_post_new.shape[0], 'wrong shape 0'
 
         if config.loss_type == 'cse':
-            pull_loss, push_loss = embedding_loss_cse(body_embedding_post_new, face_embedding_post_new, body_centers_new, face_centers_new, topk, 0.35, 32.0)
+            pull_loss, push_loss = embedding_loss_cse(body_embedding_post_new, face_embedding_post_new, body_centers_new, face_centers_new, topk, 0.00, 32.0)
         elif config.loss_type == 'cons_min':
             pull_loss, push_loss = embedding_loss(body_embedding_post_new, face_embedding_post_new, body_centers_new, face_centers_new, topk)
         elif config.loss_type == 'cons_cos':
